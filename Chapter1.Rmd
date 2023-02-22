@@ -1,0 +1,294 @@
+---
+title: "Chapter 1 - Get Started with Shiny "
+subtitle: "DataCamp -- Weixiao Huang"
+date: "22/02/2023"
+output: 
+  html_notebook:
+    toc:true
+    theme:united
+---
+## Client vs. Server
+Most web application consist of two parts. The client contains the user interface, that is, buttons and selectors and text boxes and other things that the user can interact with. The server (or backend) is where computation happens, including things like manipulating data and running models.
+
+Shown on the right is a web application that estimates your blood alcohol concentration (BAC) based on both your physical characteristics and the number of drinks you have had. Play around with the application!
+
+When you are ready, identify the action that takes place on the server side.
+
+![](Picture1.png)
+
+### Instructions
+
+1.Select Height
+
+2.Choose Drink Type
+
+**3.Plot your BAC**
+
+4.Select Sex
+
+**Comment**: Bingo! Plotting the BAC requires estimating it first, and then generating the plot. This is indeed done on the server side.
+
+### Exercise
+
+When to build a web-app?
+It can be beneficial for a data scientist to turn their analyses into a web application, especially when interactive exploration of the results are useful. It is important to be able to recognize when building an app is an appropriate solution and when it might not be.
+
+In this exercise, you will be presented with a set of scenarios. Classify each as a situation where it might be beneficial to build a web app and when it might not be.
+
+#### Web App is Beneficial
+
+- Non-technical users need to be able to explore a dataset.
+- Tracking number of items sold over time.
+- Display number of DataCamp courses taken by different users.
+
+#### Web App NOT Beneficial
+
+- The results need to be viewable in a non-interactive environment, like a paper report.
+- The analysis has a fixed interpretation, with no room for other approaches. 
+
+**Comment**: Excellent! You identified all the situations where a web app might be helpful. There are actually a lot of them.
+
+## Build a "Hello, world" Shiny app (2)
+
+Though this app doesn't actually do anything other than display the text "Hello, world!!!", you should get used to loading `shiny` and using the appropriate functions to create the UI, server, and actually run the app.
+
+If the app were run in RStudio, it would look like:
+
+![](Picture2.png)
+
+For this exercise, make sure you create the UI before the server. You can do them in any order when building your own apps later, but for this course we'll write them in that order.
+
+### Instructions
+
+- Put the code in order to correctly load `shiny`, create the app, and run it.
+
+```{r}
+library(shiny)
+ui <- fluidPage(
+  "Hello, world!!!"
+)
+server <- function(input, output, session){}
+shinyApp(ui = ui, server = server)
+```
+
+**Comment**:Awesome! You should load `shiny`, create the UI, then the server, then run `shinyApp()` so the app would run.
+
+## "Hello, World" app input (UI)
+
+The "Hello, World!!!" app, while enthusiastic, could be more fun. Extend the app and have it wish a hello to a specific person. A user will enter a name and the app will update to wish that name "Hello".
+
+For users to enter text, you'll have to use a text-specific `shiny` input function to capture it. Recall that `shiny` makes available a number of input functions depending on what kind of input you'd like to capture from your users.
+
+`shiny` has been pre-loaded for you.
+
+### Instructions
+- Add a text input to the UI called `"name"` along with an informative label for your user.
+
+```{r}
+ui <- fluidPage(
+	# CODE BELOW: Add a text input "name"
+  textInput("name", "Enter a name: ")
+  
+)
+
+server <- function(input, output) {
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+**Comment** Excellent!! `textInput()` is the way to capture what it says - text input from your user - but there's a lot of other kinds of input functions provided in `shiny` that will let you capture other types. Right now, the name isn't going anywhere or showing up in the app. In the next exercise, you'll work to wire up the app to display 'Hello' and the name entered.
+
+## "Hello, World" app output (UI/Server)
+
+To finish up your "Hello, world" app, you'll have to actually display the text that's input.
+
+Recall this is how you construct an output from an input:
+```{r}
+# Render output y using input x
+output$y <- renderText({
+  input$x
+})
+```
+
+`shiny` has been pre-loaded for you.
+
+By the end of this exercise, your app should look like this:
+
+![](Picture3.png){width="50%"}
+
+If you get an error message resembling `Parsing error in script.R:4:3: unexpected symbol`, it is very likely that you have forgotten to use a comma to separate the arguments to one of the functions.
+
+### Instructions
+
+- **Server:** Create an output named `'greeting'` that displays "Hello, Kaelen" when Kaelen is input as the name.
+
+- **UI:** Display the output in the UI. Be sure to add a comma after `textInput()`, before adding more code.
+
+```{r}
+ui <- fluidPage(
+	textInput("name", "What is your name?"),
+	# CODE BELOW: Display the text output, greeting
+    # Make sure to add a comma after textInput()
+	textOutput("greeting")
+)
+
+server <- function(input, output) {
+	# CODE BELOW: Render a text output, greeting
+  output$greeting <- renderText({
+    paste("Hello",input$name)
+    }) 
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+**Comment**: Congrats! You've now built your first Shiny app! This is a 'toy' app, or one that it's unlikely you'd ever build in your work as a data scientist, but hopefully you're beginning to understand the parts of an app and the principles behind Shiny. Let's move on to a more complicated app.
+
+## Add input (UI)
+
+This app will allow users to enter a baby name and visualize the popularity of that name over time.
+
+The first step is to add a text input to the UI that will allow a user to enter their (or any other) name. Try using the optional `default` argument this time around.
+
+The `shiny` package is pre-loaded for you.
+
+### Instructions
+
+- Add a text input to the UI, with the `inputId`, `'name'`. Pass it a label (e.g. 'Enter your Name'), and an appropriate default value (e.g. 'David').
+
+```{r}
+ui <- fluidPage(
+  # CODE BELOW: Add a text input "name"
+  textInput("name", "Enter your name", "David")
+  
+)
+
+server <- function(input, output, session) {
+
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+**Comment**: Awesome! Now you understand how to add an input to your UI. You could stop here (this could be your whole app!) but let's instead learn how to add an output as well.
+
+## Add output (UI/Server)
+
+The next step in building your app is to add an empty plot as a placeholder. Recall that in order to add a plot `p` assigned to an object named `x` to a Shiny app, you need to:
+
+1. Render the plot object using `renderPlot({p})`.
+2. Assign the rendered plot to `output$x`.
+3. Display the plot in the UI using `plotOutput("x")`.
+
+The `shiny` and `ggplot2` packages are pre-loaded for you.
+
+### Instructions
+
+- Create an empty plot by calling `ggplot()`, render it, and assign it to an output named `'trend'`.
+
+- Display the plot in the UI. Be sure to add a comma after textInput()`.
+
+```{r}
+ui <- fluidPage(
+  textInput('name', 'Enter Name', 'David'),
+  # CODE BELOW: Display the plot output named 'trend'
+  plotOutput("trend")
+  
+)
+
+server <- function(input, output, session) {
+  # CODE BELOW: Render an empty plot and assign to output named 'trend'
+  output$trend<-renderPlot({
+    ggplot()
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+**Comment**: Well done! Now that you have the input you created in the last exercise plus the blank plot, your app is getting more complicated and also more useful.
+
+## Update layout (UI)
+
+You can use `layout` functions provided by `Shiny` to arrange the UI elements. In this case, we want to use a `sidebarLayout()`, where the input is placed inside a `sidebarPanel()` and the output is placed inside the `mainPanel()`. You can use this template to update the layout of your app.
+
+```{r}
+sidebarLayout(
+  sidebarPanel(p("This goes into the sidebar on the left")),
+  mainPanel(p("This goes into the panel on the right"))
+)
+```
+
+We have pre-loaded the `shiny` and `ggplot2` packages for you. Note that `p('hello')` returns an HTML paragraph with the text `"hello"`.
+
+### Instructions
+
+- Place the `textInput()` inside a `sidebarPanel()`.
+- Place the `plotOutput()` inside a `mainPanel()`.
+- Place both panels inside a sidebar layout: `sidebarLayout(___ , ___)`.
+
+```{r}
+ui <- fluidPage(
+  titlePanel("Baby Name Explorer"),
+  # CODE BELOW: Add a sidebarLayout, sidebarPanel, and mainPanel
+  sidebarLayout(
+    sidebarPanel(
+      textInput('name', 'Enter Name', 'David')
+      ), 
+    mainPanel(
+      plotOutput('trend')
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  output$trend <- renderPlot({
+    ggplot()
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+**Comment**: Nice job! The layout of the app is now more aesthetically pleasing, and maybe even easier for users to navigate.
+
+## Update output (server)
+
+You are almost there! The final step is to update the plot output to display a line plot of `prop` vs. `year`, colored by `sex`, for the `name` that was input by the user. You can use this plot template to create your plot:
+
+```{r}
+ggplot(subset(babynames, name == "David")) +
+  geom_line(aes(x = year, y = prop, color = sex))
+```
+
+Recall that a user input named `foo` can be accessed as `input$foo` in the `server`. We have already pre-loaded the `shiny` and `ggplot2` packages, as well as the `babynames` dataset.
+
+### Instructions
+
+- Add the plotting code inside `renderPlot()`. Make sure to replace the hard-coded name (`name == "David"`) with the name that was input by the user.
+
+```{r}
+ui <- fluidPage(
+  titlePanel("Baby Name Explorer"),
+  sidebarLayout(
+    sidebarPanel(textInput('name', 'Enter Name', 'David')),
+    mainPanel(plotOutput('trend'))
+  )
+)
+
+server <- function(input, output, session) {
+  output$trend <- renderPlot({
+    # CODE BELOW: Update to display a line plot of the input name
+    ggplot(subset(babynames, name == input$name)) +
+    geom_line(aes(x = year, y = prop, color = sex))
+    
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+**Comment**: Splendid! This is now a complete app, and is much more informative than the app that only had the name-entering functionality. We'll continue to build informative, streamlined apps like this throughout the course.
